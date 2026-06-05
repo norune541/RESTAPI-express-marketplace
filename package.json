@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "format": "npx prettier . --write",
-    "build": "npx tsc",
+    "build": "npx prisma generate && npx tsc",
     "start": "node dist/server.js"
   },
   "dependencies": {
@@ -18,7 +18,8 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "jsonwebtoken": "^9.0.3"
+    "jsonwebtoken": "^9.0.3",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
