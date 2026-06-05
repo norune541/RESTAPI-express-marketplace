@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model adverts {
+  id            BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  status        adverts_status  @default(draft)
+  title         String          @db.VarChar(200)
+  text          String          @db.Text
+  price         Int
+  category_id   BigInt          @db.UnsignedBigInt
+  user_id       BigInt          @db.UnsignedBigInt
+  photos        Json
+  created_at    DateTime?       @db.Timestamp(0)
+  updated_at    DateTime?       @db.Timestamp(0)
+  categories    categories      @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "adverts_category_id_foreign")
+  users         users           @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "adverts_user_id_foreign")
+  paid_services paid_services[]
+  views         views[]
+
+  @@index([category_id], map: "adverts_category_id_foreign")
+  @@index([user_id], map: "adverts_user_id_foreign")
+}
+
+model categories {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String    @unique(map: "categories_name_unique") @db.VarChar(100)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  adverts    adverts[]
+}
+
+model paid_services {
+  id         BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  name       paid_services_name
+  expired_at DateTime           @db.DateTime(0)
+  advert_id  BigInt             @db.UnsignedBigInt
+  created_at DateTime?          @db.Timestamp(0)
+  updated_at DateTime?          @db.Timestamp(0)
+  adverts    adverts            @relation(fields: [advert_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "paid_services_advert_id_foreign")
+
+  @@index([advert_id], map: "paid_services_advert_id_foreign")
+}
+
+model users {
+  id         BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String?    @db.VarChar(100)
+  phone      String     @unique(map: "users_phone_unique") @db.VarChar(255)
+  email      String     @unique(map: "users_email_unique") @db.VarChar(255)
+  password   String     @db.VarChar(255)
+  role       users_role @default(user)
+  token      String?    @db.VarChar(255)
+  created_at DateTime?  @db.Timestamp(0)
+  updated_at DateTime?  @db.Timestamp(0)
+  adverts    adverts[]
+  views      views[]
+}
+
+model views {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  advert_id  BigInt    @db.UnsignedBigInt
+  user_id    BigInt    @db.UnsignedBigInt
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  adverts    adverts   @relation(fields: [advert_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "views_advert_id_foreign")
+  users      users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "views_user_id_foreign")
+
+  @@index([advert_id], map: "views_advert_id_foreign")
+  @@index([user_id], map: "views_user_id_foreign")
+}
+
+enum paid_services_name {
+  top
+  vip
+}
+
+enum adverts_status {
+  draft
+  moderation
+  declined
+  published
+  archived
+}
+
+enum users_role {
+  user
+  moderator
+}
