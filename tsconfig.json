@@ -1,29 +1,25 @@
 {
   "compilerOptions": {
-    /* Структура файлов */
     "rootDir": "./src",
     "outDir": "./dist",
 
-    /* Окружение бэкенда */
     "target": "esnext",
-    "module": "nodenext",
+    "module": "preserve",
     "moduleDetection": "force",
     "lib": ["esnext"],
     "types": ["node"],
+    "moduleResolution": "bundler",
 
-    /* Генерация кода и карт кода */
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
 
-    /* Строгие правила типизации (Рекомендуемые) */
     "strict": true,
     "noImplicitAny": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
     "noUncheckedSideEffectImports": true,
 
-    /* Совместимость с ESM модулями и инструментами разработки */
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
     "skipLibCheck": true
