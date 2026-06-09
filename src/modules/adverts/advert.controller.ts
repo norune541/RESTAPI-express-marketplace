@@ -1,4 +1,4 @@
-import { ApiError } from "../../errors/ApiError.js";
+import { ApiError } from "../../shared/errors/ApiError.js";
 import { Advert } from "../models/advert.js";
 
 // TODO: Вынести логику в /services, использовать zod

@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { ApiError } from "../../errors/ApiError";
+import { ApiError } from "../../shared/errors/ApiError";
 import { toUserResponse } from "./response-user.dto";
 import * as userService from "../users/user.service";
 

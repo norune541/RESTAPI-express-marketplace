@@ -1,9 +1,9 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import prisma from "../../config/prisma";
-import { ApiError } from "../../errors/ApiError";
+import prisma from "../../shared/config/prisma";
+import { ApiError } from "../../shared/errors/ApiError";
 import type { CreateUserDto } from "../users/create-user.dto";
-import { json } from "../../helpers/json";
+import { json } from "../../shared/helpers/json";
 
 const isExists = async (email: string, phone: string) => {
   const existByEmail = await prisma.users.findUnique({
