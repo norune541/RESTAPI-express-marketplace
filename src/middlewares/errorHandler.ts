@@ -1,9 +1,30 @@
-export const errorHandler = (err, req, res, next) => {
-  console.log(err);
-  if (err.code === "ER_DUP_ENTRY") {
-    return res.status(401).json({ error: "This fields are already exists" });
+import type { Request, Response, NextFunction } from "express";
+import { ZodError } from "zod";
+import { ApiError } from "../errors/ApiError";
+
+export class errorHandler {
+  public static handle(
+    err: any,
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    console.error(err);
+
+    let status: number;
+    let message: string | object;
+
+    if (err instanceof ApiError) {
+      status = err.status;
+      message = err.message;
+    } else if (err instanceof ZodError) {
+      status = 422;
+      message = err.flatten().fieldErrors;
+    } else {
+      status = 500;
+      message = "Internal server error";
+    }
+
+    return res.status(status).json({ error: message });
   }
-  return res
-    .status(err.status || 500)
-    .json({ error: err.message || "Internal server error" });
-};
+}
