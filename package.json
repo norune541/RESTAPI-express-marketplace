@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "format": "npx prettier . --write",
+    "lint": "eslint . --fix",
     "build": "npx prisma generate && npx tsc",
     "start": "node dist/server.js"
   },
@@ -22,13 +23,16 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.9.1",
+    "eslint": "^10.4.1",
     "prisma": "^6.19.3",
     "tsx": "^4.22.4",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.60.1"
   }
 }
