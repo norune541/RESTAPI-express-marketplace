@@ -1,47 +1,43 @@
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import prisma from "../../shared/config/prisma";
 import { ApiError } from "../../shared/errors/ApiError";
 import type { CreateUserDto } from "../users/create-user.dto";
+import type { LoginDto } from "./login.dto";
 import { json } from "../../shared/helpers/json";
+import { AccessToken, RefreshToken } from "../../shared/helpers/generateTokens";
 
-const isExists = async (email: string, phone: string) => {
-  const existByEmail = await prisma.users.findUnique({
+const checkUserUniqueness = async (phone: string, email: string) => {
+  const existingUser = await prisma.users.findFirst({
     where: {
-      email,
+      OR: [{ phone }, { email }],
     },
     select: {
-      id: true,
-    },
-  });
-  const existByPhone = await prisma.users.findUnique({
-    where: {
-      phone,
-    },
-    select: {
-      id: true,
+      phone: true,
+      email: true,
     },
   });
 
-  if (existByEmail) {
-    throw new ApiError("This email already exists", 409);
-  }
-
-  if (existByPhone) {
-    throw new ApiError("This phone already exists", 409);
+  if (existingUser) {
+    if (existingUser.email === email) {
+      throw new ApiError("This email already exists", 409);
+    }
+    if (existingUser.phone === phone) {
+      throw new ApiError("This phone already exists", 409);
+    }
   }
 };
 
-export const signup = async (userData: CreateUserDto): Promise<string> => {
-  await isExists(userData.email, userData.phone);
+export const signup = async (userData: CreateUserDto): Promise<any> => {
+  // TODO (low): specify the user type
+
+  await checkUserUniqueness(userData.phone, userData.email);
 
   const hashedPassword = await bcrypt.hash(userData.password, 10);
-
   const user = await prisma.users.create({
     data: {
       name: userData.name,
-      email: userData.email,
       phone: userData.phone,
+      email: userData.email,
       password: hashedPassword,
     },
     select: {
@@ -50,15 +46,35 @@ export const signup = async (userData: CreateUserDto): Promise<string> => {
     },
   });
 
-  const payload = {
-    id: json(user.id),
-    role: user.role,
-  };
-  console.log(payload);
+  return user;
+};
 
-  const token = jwt.sign(payload, process.env.JWT_SECRET!, {
-    expiresIn: "1hr",
+export const login = async (userData: LoginDto): Promise<any> => {
+  // TODO (low): specify the user type
+
+  const user = await prisma.users.findUnique({
+    where: {
+      email: userData.email,
+    },
+    select: {
+      id: true,
+      name: true,
+      phone: true,
+      email: true,
+      password: true,
+    },
   });
+  if (user) {
+    const ok = await bcrypt.compare(userData.password, user.password);
+    if (ok) {
+      return {
+        id: user.id,
+        name: user.name,
+        phone: user.phone,
+        email: user.email,
+      };
+    }
+  }
 
-  return token;
+  throw new ApiError("Invalid credentials", 401);
 };
