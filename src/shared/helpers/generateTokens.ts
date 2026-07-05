@@ -1,5 +1,5 @@
-import type { users } from "@prisma/client";
 import jwt from "jsonwebtoken";
+import type { users } from "@prisma/client";
 
 export function AccessToken(user: Pick<users, "id" | "role">) {
   return jwt.sign(
