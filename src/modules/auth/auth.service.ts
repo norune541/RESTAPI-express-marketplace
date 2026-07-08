@@ -3,10 +3,12 @@ import prisma from "../../shared/config/prisma";
 import { ApiError } from "../../shared/errors/ApiError";
 import type { CreateUserDto } from "../users/create-user.dto";
 import type { LoginDto } from "./login.dto";
-import { json } from "../../shared/helpers/json";
 import { AccessToken, RefreshToken } from "../../shared/helpers/generateTokens";
 
-const checkUserUniqueness = async (phone: string, email: string) => {
+const checkUserUniqueness = async (
+  phone: string,
+  email: string,
+): Promise<void> => {
   const existingUser = await prisma.users.findFirst({
     where: {
       OR: [{ phone }, { email }],
@@ -49,29 +51,28 @@ export const signup = async (userData: CreateUserDto): Promise<any> => {
   return user;
 };
 
-export const login = async (userData: LoginDto): Promise<any> => {
+export const signin = async (userData: LoginDto): Promise<any> => {
   // TODO (low): specify the user type
 
-  const user = await prisma.users.findUnique({
+  const user = await prisma.users.findFirst({
     where: {
-      email: userData.email,
+      OR: [{ phone: userData.phone }, { email: userData.email }],
     },
     select: {
       id: true,
-      name: true,
-      phone: true,
-      email: true,
+      role: true,
       password: true,
     },
   });
   if (user) {
     const ok = await bcrypt.compare(userData.password, user.password);
     if (ok) {
+      const accessToken = AccessToken(user);
+      const refreshToken = RefreshToken(user);
+
       return {
-        id: user.id,
-        name: user.name,
-        phone: user.phone,
-        email: user.email,
+        accessToken,
+        refreshToken,
       };
     }
   }
