@@ -64,18 +64,17 @@ export const signin = async (userData: LoginDto): Promise<any> => {
       password: true,
     },
   });
-  if (user) {
-    const ok = await bcrypt.compare(userData.password, user.password);
-    if (ok) {
-      const accessToken = AccessToken(user);
-      const refreshToken = RefreshToken(user);
 
-      return {
-        accessToken,
-        refreshToken,
-      };
-    }
-  }
+  const comparePassword = user ? user.password : process.env.DUMMY_HASH;
+  const ok = await bcrypt.compare(userData.password, comparePassword!);
 
-  throw new ApiError("Invalid credentials", 401);
+  if (!user || !ok) throw new ApiError("Invalid credentials", 401);
+
+  const accessToken = AccessToken(user);
+  const refreshToken = RefreshToken(user);
+
+  return {
+    accessToken,
+    refreshToken,
+  };
 };
