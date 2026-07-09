@@ -15,7 +15,7 @@
     "declarationMap": true,
 
     "strict": true,
-    "noImplicitAny": true,
+    //"noImplicitAny": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
     "noUncheckedSideEffectImports": true,
