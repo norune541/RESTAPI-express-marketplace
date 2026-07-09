@@ -1,9 +1,13 @@
 import bcrypt from "bcrypt";
 import prisma from "../../shared/config/prisma";
+import jwt from "jsonwebtoken";
 import { ApiError } from "../../shared/errors/ApiError";
 import type { CreateUserDto } from "../users/create-user.dto";
 import type { LoginDto } from "./login.dto";
-import { AccessToken, RefreshToken } from "../../shared/helpers/generateTokens";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+} from "../../shared/helpers/generateTokens";
 
 const checkUserUniqueness = async (
   phone: string,
@@ -70,11 +74,32 @@ export const signin = async (userData: LoginDto): Promise<any> => {
 
   if (!user || !ok) throw new ApiError("Invalid credentials", 401);
 
-  const accessToken = AccessToken(user);
-  const refreshToken = RefreshToken(user);
+  const accessToken = generateAccessToken(user);
+  const refreshToken = generateRefreshToken(user);
 
   return {
     accessToken,
     refreshToken,
+  };
+};
+
+export const refresh = (token: string) => {
+  const ok = jwt.verify(token, process.env.REFRESH_SECRET!);
+
+  if (!ok) {
+    throw new ApiError("Invalid token", 401);
+  }
+
+  const payload = {
+    id: ok.id,
+    role: ok.role,
+  };
+
+  const newAccess = generateAccessToken(payload);
+  const newRefresh = generateRefreshToken(payload);
+
+  return {
+    newAccess,
+    newRefresh,
   };
 };
