@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import type { users } from "@prisma/client";
 
-export function AccessToken(user: Pick<users, "id" | "role">) {
+export function generateAccessToken(user: Pick<users, "id" | "role">) {
   return jwt.sign(
     { id: user.id, role: user.role },
     process.env.ACCESS_SECRET!,
@@ -11,7 +11,7 @@ export function AccessToken(user: Pick<users, "id" | "role">) {
   );
 }
 
-export function RefreshToken(user: Pick<users, "id" | "role">) {
+export function generateRefreshToken(user: Pick<users, "id" | "role">) {
   return jwt.sign(
     { id: user.id, role: user.role },
     process.env.REFRESH_SECRET!,
