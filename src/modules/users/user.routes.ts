@@ -1,6 +1,7 @@
 import { Router } from "express";
-import * as controller from "./user.controller";
+import { getUser } from "./user.controller";
+import { auth } from "../../shared/middlewares/auth";
 
 export const userRouter = Router();
 
-userRouter.get("/:id", controller.getUser);
+userRouter.get("/profile", auth, getUser);
