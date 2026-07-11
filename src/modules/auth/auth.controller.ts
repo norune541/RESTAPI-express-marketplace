@@ -24,9 +24,8 @@ export const login = async (req: Request, res: Response) => {
 };
 
 export const tokenRefresh = (req: Request, res: Response) => {
-  const token = req.cookies.refreshToken;
+  const token = req.cookies?.refreshToken;
 
-  console.log(token);
   if (!token) {
     throw new ApiError("No token provided", 401);
   }
