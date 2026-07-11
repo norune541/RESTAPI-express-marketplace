@@ -24,12 +24,7 @@ const checkUserUniqueness = async (
   });
 
   if (existingUser) {
-    if (existingUser.email === email) {
-      throw new ApiError("This email already exists", 409);
-    }
-    if (existingUser.phone === phone) {
-      throw new ApiError("This phone already exists", 409);
-    }
+    throw new ApiError("This user already exists", 409);
   }
 };
 
