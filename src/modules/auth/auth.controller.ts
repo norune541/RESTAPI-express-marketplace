@@ -23,6 +23,10 @@ export const login = async (req: Request, res: Response) => {
   return res.status(200).json({ accessToken });
 };
 
+export const logout = async (req: Request, res: Response) => {
+  return res.clearCookie("refreshToken", { path: "/" }).sendStatus(204);
+};
+
 export const tokenRefresh = (req: Request, res: Response) => {
   const token = req.cookies?.refreshToken;
 
