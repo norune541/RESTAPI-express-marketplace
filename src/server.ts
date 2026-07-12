@@ -21,7 +21,7 @@ app.use("/api/users", userRouter);
 app.use("/api/auth", authRouter);
 // app.use("/api", advertRouter);
 
-app.use(errorHandler.handle);
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`http://localhost:${PORT}/api`);
