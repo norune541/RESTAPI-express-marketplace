@@ -14,7 +14,7 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
     case err instanceof ApiError:
       return res.status(err.status).json({ error: err.message });
 
-    case err instanceof jwt.JsonWebTokenError:
+    case err instanceof jwt.JsonWebTokenError || jwt.TokenExpiredError:
       return res.status(401).json({ error: err.message });
 
     case err instanceof ZodError:
