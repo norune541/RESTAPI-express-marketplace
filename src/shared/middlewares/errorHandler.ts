@@ -1,34 +1,26 @@
-import type { Request, Response, NextFunction } from "express";
+import type { ErrorRequestHandler } from "express";
 import { ZodError } from "zod";
 import { ApiError } from "../errors/ApiError";
 import jwt from "jsonwebtoken";
 
-export class errorHandler {
-  public static handle(
-    err: any,
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) {
-    console.error(err);
+export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
+  console.error(err);
 
-    let status: number;
-    let message: string | object;
+  switch (true) {
+    case err instanceof SyntaxError &&
+      (err as any).type === "entity.parse.failed":
+      return res.status(422).json({ error: "Empty body" });
 
-    if (err instanceof ApiError) {
-      status = err.status;
-      message = err.message;
-    } else if (err instanceof ZodError) {
-      status = 422;
-      message = err.flatten().fieldErrors;
-    } else if (err instanceof jwt.JsonWebTokenError) {
-      status = 401;
-      message = err.message;
-    } else {
-      status = 500;
-      message = "Internal server error";
-    }
+    case err instanceof ApiError:
+      return res.status(err.status).json({ error: err.message });
 
-    return res.status(status).json({ error: message });
+    case err instanceof jwt.JsonWebTokenError:
+      return res.status(401).json({ error: err.message });
+
+    case err instanceof ZodError:
+      return res.status(400).json({ error: err.flatten().fieldErrors });
+
+    default:
+      return res.status(500).json({ error: "Internal server error" });
   }
-}
+};
